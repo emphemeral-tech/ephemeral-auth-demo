@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ephemeral Auth vs Token Auth - LIVE DEMO</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .demo-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .demo-box { border: 3px solid; padding: 20px; border-radius: 10px; min-height: 500px; }
+        .token-demo { border-color: #ff4444; background: #fff5f5; }
+        .ephemeral-demo { border-color: #44ff44; background: #f5fff5; }
+        .session-display { background: #f0f0f0; padding: 15px; margin: 10px 0; border-radius: 5px; min-height: 80px; }
+        button { margin: 5px; padding: 10px; border: none; border-radius: 5px; cursor: pointer; }
+        .token-btn { background: #ff4444; color: white; }
+        .ephemeral-btn { background: #44ff44; color: black; }
+        .hacker-btn { background: #ffaa00; color: black; }
+        .log { background: #000; color: #0f0; padding: 10px; margin: 10px 0; border-radius: 5px; max-height: 200px; overflow-y: auto; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>🔐 AUTHENTICATION SHOWDOWN: Token vs Ephemeral</h1>
+    <p><strong>WATCH WHAT HAPPENS WHEN HACKERS STRIKE!</strong></p>
+    
+    <div class="demo-container">
+        <!-- TOKEN AUTH SIDE -->
+        <div class="demo-box token-demo">
+            <h2>🔓 TRADITIONAL TOKEN AUTH</h2>
+            <p><em>Tokens last for HOURS - Hackers get unlimited access!</em></p>
+            
+            <button class="token-btn" onclick="tokenLogin()">🔑 Login & Get Token (2 hours)</button>
+            <button class="token-btn" onclick="tokenAccess()">🚪 Access Secure Area</button>
+            <button class="hacker-btn" onclick="stealToken()">👹 SIMULATE TOKEN THEFT</button>
+            
+            <div class="session-display" id="tokenDisplay">
+                <strong>TOKEN STATUS:</strong> No token yet...
+            </div>
+            
+            <div class="log" id="tokenLog"></div>
+        </div>
+
+        <!-- EPHEMERAL AUTH SIDE -->
+        <div class="demo-box ephemeral-demo">
+            <h2>✅ EPHEMERAL AUTH</h2>
+            <p><em>Sessions vanish after ONE USE - Hackers get NOTHING!</em></p>
+            
+            <button class="ephemeral-btn" onclick="ephemeralLogin()">🎯 Request Ephemeral Challenge</button>
+            <button class="ephemeral-btn" onclick="ephemeralSolve()">🔐 Solve & Get Session</button>
+            <button class="ephemeral-btn" onclick="ephemeralAccess()">🚪 Use Session (VANISHES!)</button>
+            <button class="hacker-btn" onclick="stealEphemeral()">👹 TRY TO STEAL SESSION</button>
+            
+            <div class="session-display" id="ephemeralDisplay">
+                <strong>SESSION STATUS:</strong> No session yet...
+            </div>
+            
+            <div class="log" id="ephemeralLog"></div>
+        </div>
+    </div>
+
+    <script src="demo.js"></script>
+</body>
+</html>
