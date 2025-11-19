@@ -1,37 +1,61 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Ephemeral Auth vs Token Auth - LIVE DEMO</title>
+    <title>Ephemeral Auth vs Token Auth - REAL LOGIN DEMO</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
         .demo-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .demo-box { border: 3px solid; padding: 20px; border-radius: 10px; min-height: 500px; }
-        .token-demo { border-color: #ff4444; background: #fff5f5; }
-        .ephemeral-demo { border-color: #44ff44; background: #f5fff5; }
-        .session-display { background: #f0f0f0; padding: 15px; margin: 10px 0; border-radius: 5px; min-height: 80px; }
-        button { margin: 5px; padding: 10px; border: none; border-radius: 5px; cursor: pointer; }
-        .token-btn { background: #ff4444; color: white; }
-        .ephemeral-btn { background: #44ff44; color: black; }
-        .hacker-btn { background: #ffaa00; color: black; }
-        .log { background: #000; color: #0f0; padding: 10px; margin: 10px 0; border-radius: 5px; max-height: 200px; overflow-y: auto; font-family: monospace; }
+        .demo-box { border: 3px solid; padding: 20px; border-radius: 10px; background: white; min-height: 600px; }
+        .token-demo { border-color: #ff4444; }
+        .ephemeral-demo { border-color: #44ff44; }
+        
+        .login-form { background: #f9f9f9; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        input { padding: 8px; margin: 5px; width: 200px; }
+        button { margin: 5px; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .login-btn { background: #007bff; color: white; }
+        .action-btn { background: #28a745; color: white; }
+        .hacker-btn { background: #ffc107; color: black; }
+        
+        .session-display { background: #e9ecef; padding: 15px; margin: 10px 0; border-radius: 5px; min-height: 80px; }
+        .user-status { background: #d4edda; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .log { background: #000; color: #0f0; padding: 10px; margin: 10px 0; border-radius: 5px; max-height: 200px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+        
+        .ephemeral-flow { background: #e8f5e8; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .token-flow { background: #ffe8e8; padding: 10px; border-radius: 5px; margin: 10px 0; }
     </style>
 </head>
 <body>
-    <h1>🔐 AUTHENTICATION SHOWDOWN: Token vs Ephemeral</h1>
-    <p><strong>WATCH WHAT HAPPENS WHEN HACKERS STRIKE!</strong></p>
+    <h1>🔐 REAL-WORLD AUTH SHOWDOWN</h1>
+    <p><strong>Same user database. Same login. DIFFERENT SECURITY!</strong></p>
     
     <div class="demo-container">
         <!-- TOKEN AUTH SIDE -->
         <div class="demo-box token-demo">
             <h2>🔓 TRADITIONAL TOKEN AUTH</h2>
-            <p><em>Tokens last for HOURS - Hackers get unlimited access!</em></p>
+            <p><em>Login once → Get token → Use for HOURS</em></p>
             
-            <button class="token-btn" onclick="tokenLogin()">🔑 Login & Get Token (2 hours)</button>
-            <button class="token-btn" onclick="tokenAccess()">🚪 Access Secure Area</button>
+            <div class="login-form">
+                <h3>User Login</h3>
+                <input type="text" id="tokenUsername" placeholder="Username" value="john@company.com">
+                <input type="password" id="tokenPassword" placeholder="Password" value="••••••••"><br>
+                <button class="login-btn" onclick="tokenLogin()">🔑 Login & Get Token</button>
+            </div>
+            
+            <div class="token-flow">
+                <strong>Token Flow:</strong><br>
+                1. Login → 2. Get JWT Token (2 hours) → 3. Reuse token repeatedly
+            </div>
+            
+            <div class="user-status" id="tokenUserStatus">
+                <strong>Status:</strong> Not logged in
+            </div>
+            
+            <button class="action-btn" onclick="tokenAccessBank()">🏦 Access Bank Account</button>
+            <button class="action-btn" onclick="tokenAccessEmail()">📧 Check Email</button>
             <button class="hacker-btn" onclick="stealToken()">👹 SIMULATE TOKEN THEFT</button>
             
             <div class="session-display" id="tokenDisplay">
-                <strong>TOKEN STATUS:</strong> No token yet...
+                <strong>TOKEN STATUS:</strong> No active session
             </div>
             
             <div class="log" id="tokenLog"></div>
@@ -40,21 +64,210 @@
         <!-- EPHEMERAL AUTH SIDE -->
         <div class="demo-box ephemeral-demo">
             <h2>✅ EPHEMERAL AUTH</h2>
-            <p><em>Sessions vanish after ONE USE - Hackers get NOTHING!</em></p>
+            <p><em>Each action → New proof → Session VANISHES</em></p>
             
-            <button class="ephemeral-btn" onclick="ephemeralLogin()">🎯 Request Ephemeral Challenge</button>
-            <button class="ephemeral-btn" onclick="ephemeralSolve()">🔐 Solve & Get Session</button>
-            <button class="ephemeral-btn" onclick="ephemeralAccess()">🚪 Use Session (VANISHES!)</button>
+            <div class="login-form">
+                <h3>User Login</h3>
+                <input type="text" id="ephemeralUsername" placeholder="Username" value="john@company.com">
+                <input type="password" id="ephemeralPassword" placeholder="Password" value="••••••••"><br>
+                <button class="login-btn" onclick="ephemeralLogin()">🎯 Request Ephemeral Challenge</button>
+            </div>
+            
+            <div class="ephemeral-flow">
+                <strong>Ephemeral Flow:</strong><br>
+                1. Request challenge → 2. Solve proof → 3. Get NANOSEC session → 4. VANISH!
+            </div>
+            
+            <div class="user-status" id="ephemeralUserStatus">
+                <strong>Status:</strong> Not logged in
+            </div>
+            
+            <button class="action-btn" onclick="ephemeralAccessBank()">🏦 Access Bank Account</button>
+            <button class="action-btn" onclick="ephemeralAccessEmail()">📧 Check Email</button>
             <button class="hacker-btn" onclick="stealEphemeral()">👹 TRY TO STEAL SESSION</button>
             
             <div class="session-display" id="ephemeralDisplay">
-                <strong>SESSION STATUS:</strong> No session yet...
+                <strong>SESSION STATUS:</strong> No active session
             </div>
             
             <div class="log" id="ephemeralLog"></div>
         </div>
     </div>
 
-    <script src="demo.js"></script>
+    <script>
+        // TOKEN AUTH - REALISTIC SIMULATION
+        let userToken = null;
+        let tokenUser = null;
+        let tokenActions = [];
+
+        function tokenLogin() {
+            const username = document.getElementById('tokenUsername').value;
+            userToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' + Math.random().toString(36).substr(2, 20);
+            tokenUser = username;
+            
+            document.getElementById('tokenUserStatus').innerHTML = 
+                `<strong>✅ LOGGED IN:</strong> ${username}<br>
+                 <em>Token valid for 2 HOURS</em>`;
+                 
+            document.getElementById('tokenDisplay').innerHTML = 
+                `<strong>🔑 ACTIVE TOKEN:</strong><br>
+                 ${userToken.substr(0, 30)}...<br>
+                 <span style="color: red;">⏰ Expires in 2 hours</span>`;
+            
+            logToken(`🔑 ${username} logged in → Got JWT token (2 hours)`);
+            logToken('✅ Token can be reused for ALL actions for 2 HOURS');
+        }
+
+        function tokenAccessBank() {
+            if (!userToken) {
+                logToken('❌ Please login first');
+                return;
+            }
+            tokenActions.push('Bank Access');
+            logToken(`🏦 BANK ACCESS with token → Balance: $${(Math.random()*10000).toFixed(2)}`);
+            logToken('✅ Token STILL VALID for next 2 hours');
+        }
+
+        function tokenAccessEmail() {
+            if (!userToken) {
+                logToken('❌ Please login first');
+                return;
+            }
+            tokenActions.push('Email Access');
+            logToken(`📧 EMAIL ACCESS with token → 3 new messages`);
+            logToken('✅ Token STILL VALID for next 2 hours');
+        }
+
+        function stealToken() {
+            if (!userToken) {
+                logToken('👹 Hacker: No token to steal!');
+                return;
+            }
+            
+            logToken('🚨 🚨 🚨 TOKEN STOLEN BY HACKER!');
+            logToken(`👹 Hacker: I have ${tokenUser}\'s token!`);
+            
+            // Hacker uses stolen token
+            setTimeout(() => {
+                logToken('👹 Hacker: Accessing bank account...');
+                logToken(`👹 Hacker: Transferred $${(Math.random()*1000).toFixed(2)} to my account!`);
+            }, 1000);
+            
+            setTimeout(() => {
+                logToken('👹 Hacker: Reading private emails...');
+                logToken('👹 Hacker: Found sensitive company information!');
+            }, 2000);
+            
+            setTimeout(() => {
+                logToken('👹 Hacker: Changing password...');
+                logToken('👹 Hacker: Locked the real user out!');
+                logToken('👹 Hacker: I can keep going for 2 HOURS! 😈');
+            }, 3000);
+        }
+
+        function logToken(message) {
+            const log = document.getElementById('tokenLog');
+            log.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${message}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // EPHEMERAL AUTH - REALISTIC SIMULATION
+        let ephemeralUser = null;
+        let currentSession = null;
+        let ephemeralActions = [];
+
+        function ephemeralLogin() {
+            const username = document.getElementById('ephemeralUsername').value;
+            document.getElementById('ephemeralUserStatus').innerHTML = 
+                `<strong>🔐 SOLVING CHALLENGE:</strong> ${username}`;
+            document.getElementById('ephemeralDisplay').innerHTML = 
+                '<strong>🎯 CRYPTO CHALLENGE:</strong> Solving mathematical proof...';
+            
+            logEphemeral(`🎯 ${username} requested ephemeral challenge`);
+            
+            // Simulate solving cryptographic proof
+            setTimeout(() => {
+                ephemeralUser = username;
+                currentSession = 'eph_' + Math.random().toString(36).substr(2, 16);
+                
+                document.getElementById('ephemeralUserStatus').innerHTML = 
+                    `<strong>✅ AUTHENTICATED:</strong> ${username}<br>
+                     <em>Nanosecond session ready</em>`;
+                     
+                document.getElementById('ephemeralDisplay').innerHTML = 
+                    `<strong>⚡ EPHEMERAL SESSION:</strong><br>
+                     ${currentSession}<br>
+                     <span style="color: green;">💨 Vanishes after ONE use</span>`;
+                
+                logEphemeral('✅ Cryptographic proof solved → Nanosecond session created');
+                logEphemeral('⚠️ Session will SELF-DESTRUCT after single use');
+            }, 1000);
+        }
+
+        function ephemeralAccessBank() {
+            if (!currentSession) {
+                logEphemeral('❌ Please solve challenge first');
+                return;
+            }
+            
+            ephemeralActions.push('Bank Access');
+            logEphemeral(`🏦 BANK ACCESS with ephemeral session → Balance: $${(Math.random()*10000).toFixed(2)}`);
+            logEphemeral('💨 Session USED → VANISHING...');
+            
+            // Session vanishes
+            setTimeout(() => {
+                currentSession = null;
+                document.getElementById('ephemeralDisplay').innerHTML = 
+                    '<strong>💨 SESSION VANISHED</strong><br>Request new challenge for next action';
+                logEphemeral('✅ Security: Session destroyed automatically');
+            }, 1500);
+        }
+
+        function ephemeralAccessEmail() {
+            if (!currentSession) {
+                logEphemeral('❌ Please solve challenge first');
+                return;
+            }
+            
+            ephemeralActions.push('Email Access');
+            logEphemeral(`📧 EMAIL ACCESS with ephemeral session → 3 new messages`);
+            logEphemeral('💨 Session USED → VANISHING...');
+            
+            // Session vanishes
+            setTimeout(() => {
+                currentSession = null;
+                document.getElementById('ephemeralDisplay').innerHTML = 
+                    '<strong>💨 SESSION VANISHED</strong><br>Request new challenge for next action';
+                logEphemeral('✅ Security: Session destroyed automatically');
+            }, 1500);
+        }
+
+        function stealEphemeral() {
+            if (!currentSession) {
+                logEphemeral('👹 Hacker: No session to steal!');
+                return;
+            }
+            
+            logEphemeral('👹 Hacker: Stole the ephemeral session!');
+            
+            setTimeout(() => {
+                logEphemeral('👹 Hacker: Making ONE request with stolen session...');
+                setTimeout(() => {
+                    logEphemeral('💨 Hacker: Session VANISHED after my ONE action!');
+                    logEphemeral('😡 Hacker: I got ONE bank access then NOTHING!');
+                    logEphemeral('✅ SECURITY WIN: Maximum damage = ONE action');
+                    currentSession = null;
+                    document.getElementById('ephemeralDisplay').innerHTML = 
+                        '<strong>💨 SESSION STOLEN & USED</strong><br>Hacker limited to SINGLE action';
+                }, 1000);
+            }, 500);
+        }
+
+        function logEphemeral(message) {
+            const log = document.getElementById('ephemeralLog');
+            log.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${message}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+    </script>
 </body>
 </html>
