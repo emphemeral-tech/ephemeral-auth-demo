@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Ephemeral Auth vs Token Auth - REAL LOGIN DEMO</title>
+    <title>Ephemeral Auth vs Token Auth - BANKING SECURITY DEMO</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
         .demo-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .demo-box { border: 3px solid; padding: 20px; border-radius: 10px; background: white; min-height: 600px; }
+        .demo-box { border: 3px solid; padding: 20px; border-radius: 10px; background: white; min-height: 650px; }
         .token-demo { border-color: #ff4444; }
         .ephemeral-demo { border-color: #44ff44; }
         
@@ -18,41 +18,47 @@
         
         .session-display { background: #e9ecef; padding: 15px; margin: 10px 0; border-radius: 5px; min-height: 80px; }
         .user-status { background: #d4edda; padding: 10px; border-radius: 5px; margin: 10px 0; }
-        .log { background: #000; color: #0f0; padding: 10px; margin: 10px 0; border-radius: 5px; max-height: 200px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+        .log { background: #000; color: #0f0; padding: 10px; margin: 10px 0; border-radius: 5px; max-height: 250px; overflow-y: auto; font-family: monospace; font-size: 12px; }
         
-        .ephemeral-flow { background: #e8f5e8; padding: 10px; border-radius: 5px; margin: 10px 0; }
-        .token-flow { background: #ffe8e8; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .explanation { background: #e3f2fd; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .bank-balance { background: #fff3cd; padding: 10px; border-radius: 5px; margin: 10px 0; font-weight: bold; }
+        
+        .danger-zone { background: #ffeaa7; padding: 10px; border-radius: 5px; margin: 10px 0; border: 2px dashed #e17055; }
+        .security-win { background: #a3e4d7; padding: 10px; border-radius: 5px; margin: 10px 0; border: 2px solid #16a085; }
     </style>
 </head>
 <body>
-    <h1>🔐 REAL-WORLD AUTH SHOWDOWN</h1>
-    <p><strong>Same user database. Same login. DIFFERENT SECURITY!</strong></p>
+    <h1>🏦 BANKING SECURITY SHOWDOWN: Token vs Ephemeral Auth</h1>
+    <p><strong>Same user. Same bank. DRAMATICALLY different security outcomes!</strong></p>
     
     <div class="demo-container">
         <!-- TOKEN AUTH SIDE -->
         <div class="demo-box token-demo">
             <h2>🔓 TRADITIONAL TOKEN AUTH</h2>
-            <p><em>Login once → Get token → Use for HOURS</em></p>
+            <p><em>Login once → Unlimited transfers for 2 HOURS</em></p>
             
             <div class="login-form">
-                <h3>User Login</h3>
-                <input type="text" id="tokenUsername" placeholder="Username" value="john@company.com">
+                <h3>Bank Login</h3>
+                <input type="text" id="tokenUsername" placeholder="Username" value="john@bank.com">
                 <input type="password" id="tokenPassword" placeholder="Password" value="••••••••"><br>
                 <button class="login-btn" onclick="tokenLogin()">🔑 Login & Get Token</button>
             </div>
             
-            <div class="token-flow">
-                <strong>Token Flow:</strong><br>
-                1. Login → 2. Get JWT Token (2 hours) → 3. Reuse token repeatedly
+            <div class="bank-balance" id="tokenBalance">
+                <strong>Bank Balance:</strong> $10,000.00
             </div>
             
             <div class="user-status" id="tokenUserStatus">
                 <strong>Status:</strong> Not logged in
             </div>
             
-            <button class="action-btn" onclick="tokenAccessBank()">🏦 Access Bank Account</button>
-            <button class="action-btn" onclick="tokenAccessEmail()">📧 Check Email</button>
-            <button class="hacker-btn" onclick="stealToken()">👹 SIMULATE TOKEN THEFT</button>
+            <button class="action-btn" onclick="tokenBankTransfer()">💸 Make Bank Transfer</button>
+            <button class="action-btn" onclick="tokenViewStatement()">📊 View Account Statement</button>
+            
+            <div class="danger-zone">
+                <button class="hacker-btn" onclick="stealToken()">👹 SIMULATE TOKEN THEFT</button>
+                <p><small>See what happens when hacker gets your token</small></p>
+            </div>
             
             <div class="session-display" id="tokenDisplay">
                 <strong>TOKEN STATUS:</strong> No active session
@@ -64,27 +70,38 @@
         <!-- EPHEMERAL AUTH SIDE -->
         <div class="demo-box ephemeral-demo">
             <h2>✅ EPHEMERAL AUTH</h2>
-            <p><em>Each action → New proof → Session VANISHES</em></p>
+            <p><em>Each transfer → Fresh authentication → Session VANISHES</em></p>
             
             <div class="login-form">
-                <h3>User Login</h3>
-                <input type="text" id="ephemeralUsername" placeholder="Username" value="john@company.com">
+                <h3>Bank Login</h3>
+                <input type="text" id="ephemeralUsername" placeholder="Username" value="john@bank.com">
                 <input type="password" id="ephemeralPassword" placeholder="Password" value="••••••••"><br>
-                <button class="login-btn" onclick="ephemeralLogin()">🎯 Request Ephemeral Challenge</button>
+                <button class="login-btn" onclick="ephemeralLogin()">🎯 Login & Get Ephemeral</button>
             </div>
             
-            <div class="ephemeral-flow">
-                <strong>Ephemeral Flow:</strong><br>
-                1. Request challenge → 2. Solve proof → 3. Get NANOSEC session → 4. VANISH!
+            <div class="explanation">
+                <strong>💡 How It Works:</strong><br>
+                • Each action requires fresh cryptographic proof<br>
+                • Re-authentication happens automatically<br>
+                • User experience feels seamless<br>
+                • Security is maximum
+            </div>
+            
+            <div class="bank-balance" id="ephemeralBalance">
+                <strong>Bank Balance:</strong> $10,000.00
             </div>
             
             <div class="user-status" id="ephemeralUserStatus">
                 <strong>Status:</strong> Not logged in
             </div>
             
-            <button class="action-btn" onclick="ephemeralAccessBank()">🏦 Access Bank Account</button>
-            <button class="action-btn" onclick="ephemeralAccessEmail()">📧 Check Email</button>
-            <button class="hacker-btn" onclick="stealEphemeral()">👹 TRY TO STEAL SESSION</button>
+            <button class="action-btn" onclick="ephemeralBankTransfer()">💸 Make Bank Transfer</button>
+            <button class="action-btn" onclick="ephemeralViewStatement()">📊 View Account Statement</button>
+            
+            <div class="security-win">
+                <button class="hacker-btn" onclick="stealEphemeral()">👹 TRY TO STEAL SESSION</button>
+                <p><small>See why hackers get almost nothing</small></p>
+            </div>
             
             <div class="session-display" id="ephemeralDisplay">
                 <strong>SESSION STATUS:</strong> No active session
@@ -95,10 +112,11 @@
     </div>
 
     <script>
-        // TOKEN AUTH - REALISTIC SIMULATION
+        // TOKEN AUTH - DANGEROUS BANKING
         let userToken = null;
         let tokenUser = null;
-        let tokenActions = [];
+        let tokenBalance = 10000;
+        let tokenTransfers = [];
 
         function tokenLogin() {
             const username = document.getElementById('tokenUsername').value;
@@ -106,63 +124,82 @@
             tokenUser = username;
             
             document.getElementById('tokenUserStatus').innerHTML = 
-                `<strong>✅ LOGGED IN:</strong> ${username}<br>
-                 <em>Token valid for 2 HOURS</em>`;
+                `<strong>✅ BANK LOGGED IN:</strong> ${username}<br>
+                 <em>Token valid for 2 HOURS - Unlimited transfers</em>`;
                  
             document.getElementById('tokenDisplay').innerHTML = 
-                `<strong>🔑 ACTIVE TOKEN:</strong><br>
+                `<strong>🔑 ACTIVE BANKING TOKEN:</strong><br>
                  ${userToken.substr(0, 30)}...<br>
-                 <span style="color: red;">⏰ Expires in 2 hours</span>`;
+                 <span style="color: red;">⏰ Valid for 2 HOURS</span>`;
             
-            logToken(`🔑 ${username} logged in → Got JWT token (2 hours)`);
-            logToken('✅ Token can be reused for ALL actions for 2 HOURS');
+            logToken(`🔑 ${username} logged into bank → Got JWT token`);
+            logToken('⚠️  This token allows UNLIMITED transfers for 2 HOURS');
         }
 
-        function tokenAccessBank() {
+        function tokenBankTransfer() {
+            if (!userToken) {
+                logToken('❌ Please login to bank first');
+                return;
+            }
+            
+            const amount = (Math.random()*500 + 100).toFixed(2);
+            tokenBalance -= parseFloat(amount);
+            tokenTransfers.push(amount);
+            
+            document.getElementById('tokenBalance').innerHTML = 
+                `<strong>Bank Balance:</strong> $${tokenBalance.toFixed(2)}`;
+            
+            logToken(`💸 BANK TRANSFER #${tokenTransfers.length}: $${amount} sent`);
+            logToken(`📊 Remaining balance: $${tokenBalance.toFixed(2)}`);
+            logToken('✅ Token STILL ACTIVE - Can make unlimited more transfers!');
+            
+            if (tokenTransfers.length === 3) {
+                logToken('🚨 DANGER: Hacker could make 100+ transfers with same token!');
+            }
+        }
+
+        function tokenViewStatement() {
             if (!userToken) {
                 logToken('❌ Please login first');
                 return;
             }
-            tokenActions.push('Bank Access');
-            logToken(`🏦 BANK ACCESS with token → Balance: $${(Math.random()*10000).toFixed(2)}`);
-            logToken('✅ Token STILL VALID for next 2 hours');
-        }
-
-        function tokenAccessEmail() {
-            if (!userToken) {
-                logToken('❌ Please login first');
-                return;
-            }
-            tokenActions.push('Email Access');
-            logToken(`📧 EMAIL ACCESS with token → 3 new messages`);
-            logToken('✅ Token STILL VALID for next 2 hours');
+            logToken(`📊 ACCOUNT STATEMENT: ${tokenTransfers.length} transfers today`);
+            logToken('✅ Token STILL VALID for banking operations');
         }
 
         function stealToken() {
             if (!userToken) {
-                logToken('👹 Hacker: No token to steal!');
+                logToken('👹 Hacker: No banking token to steal!');
                 return;
             }
             
-            logToken('🚨 🚨 🚨 TOKEN STOLEN BY HACKER!');
-            logToken(`👹 Hacker: I have ${tokenUser}\'s token!`);
+            logToken('🚨 🚨 🚨 BANKING TOKEN STOLEN BY HACKER!');
+            logToken(`👹 Hacker: I have ${tokenUser}\'s banking token!`);
+            logToken('👹 Hacker: Time to empty this account!');
             
-            // Hacker uses stolen token
-            setTimeout(() => {
-                logToken('👹 Hacker: Accessing bank account...');
-                logToken(`👹 Hacker: Transferred $${(Math.random()*1000).toFixed(2)} to my account!`);
+            let hackerBalance = tokenBalance;
+            let hackerTransfers = 0;
+            
+            const hackerInterval = setInterval(() => {
+                hackerTransfers++;
+                const amount = Math.min(1000, hackerBalance * 0.3); // Take 30% each time
+                hackerBalance -= amount;
+                
+                logToken(`👹 Hacker: Transfer #${hackerTransfers}: $${amount.toFixed(2)} to my account!`);
+                logToken(`👹 Hacker: Remaining: $${hackerBalance.toFixed(2)}`);
+                
+                if (hackerTransfers >= 5 || hackerBalance < 100) {
+                    clearInterval(hackerInterval);
+                    const totalStolen = (tokenBalance - hackerBalance).toFixed(2);
+                    logToken(`💀 Hacker: Stole $${totalStolen} total!`);
+                    logToken(`😈 Hacker: Could keep transferring for 2 HOURS!`);
+                    
+                    // Update actual balance
+                    tokenBalance = hackerBalance;
+                    document.getElementById('tokenBalance').innerHTML = 
+                        `<strong>Bank Balance:</strong> $${tokenBalance.toFixed(2)}`;
+                }
             }, 1000);
-            
-            setTimeout(() => {
-                logToken('👹 Hacker: Reading private emails...');
-                logToken('👹 Hacker: Found sensitive company information!');
-            }, 2000);
-            
-            setTimeout(() => {
-                logToken('👹 Hacker: Changing password...');
-                logToken('👹 Hacker: Locked the real user out!');
-                logToken('👹 Hacker: I can keep going for 2 HOURS! 😈');
-            }, 3000);
         }
 
         function logToken(message) {
@@ -171,94 +208,119 @@
             log.scrollTop = log.scrollHeight;
         }
 
-        // EPHEMERAL AUTH - REALISTIC SIMULATION
+        // EPHEMERAL AUTH - SECURE BANKING
         let ephemeralUser = null;
         let currentSession = null;
-        let ephemeralActions = [];
+        let ephemeralBalance = 10000;
+        let ephemeralTransfers = [];
+        let autoReauth = false;
 
         function ephemeralLogin() {
             const username = document.getElementById('ephemeralUsername').value;
             document.getElementById('ephemeralUserStatus').innerHTML = 
-                `<strong>🔐 SOLVING CHALLENGE:</strong> ${username}`;
+                `<strong>🔐 SOLVING BANK CHALLENGE:</strong> ${username}`;
             document.getElementById('ephemeralDisplay').innerHTML = 
-                '<strong>🎯 CRYPTO CHALLENGE:</strong> Solving mathematical proof...';
+                '<strong>🎯 BANK SECURITY CHALLENGE:</strong> Verifying cryptographic proof...';
             
-            logEphemeral(`🎯 ${username} requested ephemeral challenge`);
+            logEphemeral(`🎯 ${username} requested bank authentication`);
             
             // Simulate solving cryptographic proof
             setTimeout(() => {
                 ephemeralUser = username;
-                currentSession = 'eph_' + Math.random().toString(36).substr(2, 16);
+                currentSession = 'eph_bank_' + Math.random().toString(36).substr(2, 12);
                 
                 document.getElementById('ephemeralUserStatus').innerHTML = 
-                    `<strong>✅ AUTHENTICATED:</strong> ${username}<br>
-                     <em>Nanosecond session ready</em>`;
+                    `<strong>✅ BANK AUTHENTICATED:</strong> ${username}<br>
+                     <em>Secure session ready for ONE action</em>`;
                      
                 document.getElementById('ephemeralDisplay').innerHTML = 
-                    `<strong>⚡ EPHEMERAL SESSION:</strong><br>
+                    `<strong>⚡ EPHEMERAL BANK SESSION:</strong><br>
                      ${currentSession}<br>
-                     <span style="color: green;">💨 Vanishes after ONE use</span>`;
+                     <span style="color: green;">💨 Vanishes after ONE banking action</span>`;
                 
-                logEphemeral('✅ Cryptographic proof solved → Nanosecond session created');
-                logEphemeral('⚠️ Session will SELF-DESTRUCT after single use');
+                logEphemeral('✅ Cryptographic proof solved → Secure banking session created');
+                logEphemeral('⚠️  Session will SELF-DESTRUCT after single banking action');
             }, 1000);
         }
 
-        function ephemeralAccessBank() {
+        function ephemeralBankTransfer() {
             if (!currentSession) {
-                logEphemeral('❌ Please solve challenge first');
+                logEphemeral('❌ Please authenticate with bank first');
                 return;
             }
             
-            ephemeralActions.push('Bank Access');
-            logEphemeral(`🏦 BANK ACCESS with ephemeral session → Balance: $${(Math.random()*10000).toFixed(2)}`);
-            logEphemeral('💨 Session USED → VANISHING...');
+            const amount = (Math.random()*500 + 100).toFixed(2);
+            ephemeralBalance -= parseFloat(amount);
+            ephemeralTransfers.push(amount);
             
-            // Session vanishes
+            document.getElementById('ephemeralBalance').innerHTML = 
+                `<strong>Bank Balance:</strong> $${ephemeralBalance.toFixed(2)}`;
+            
+            logEphemeral(`💸 BANK TRANSFER: $${amount} sent`);
+            logEphemeral(`📊 Remaining balance: $${ephemeralBalance.toFixed(2)}`);
+            logEphemeral('💨 Banking session USED for this transfer → VANISHING...');
+            
+            // Session vanishes after ONE transaction
             setTimeout(() => {
                 currentSession = null;
                 document.getElementById('ephemeralDisplay').innerHTML = 
-                    '<strong>💨 SESSION VANISHED</strong><br>Request new challenge for next action';
-                logEphemeral('✅ Security: Session destroyed automatically');
+                    '<strong>💨 BANKING SESSION VANISHED</strong><br>Next transfer requires fresh authentication';
+                document.getElementById('ephemeralUserStatus').innerHTML = 
+                    `<strong>🔒 RE-AUTHENTICATION NEEDED:</strong> ${ephemeralUser}<br>
+                     <em>Session destroyed after transfer - Standard security</em>`;
+                logEphemeral('✅ Security: Session destroyed after ONE banking action');
+                logEphemeral('🔒 Next transfer requires fresh cryptographic proof');
             }, 1500);
         }
 
-        function ephemeralAccessEmail() {
+        function ephemeralViewStatement() {
             if (!currentSession) {
-                logEphemeral('❌ Please solve challenge first');
+                logEphemeral('❌ Please authenticate first');
                 return;
             }
             
-            ephemeralActions.push('Email Access');
-            logEphemeral(`📧 EMAIL ACCESS with ephemeral session → 3 new messages`);
-            logEphemeral('💨 Session USED → VANISHING...');
+            logEphemeral(`📊 ACCOUNT STATEMENT: ${ephemeralTransfers.length} transfers today`);
+            logEphemeral('💨 Session USED for statement view → VANISHING...');
             
-            // Session vanishes
             setTimeout(() => {
                 currentSession = null;
                 document.getElementById('ephemeralDisplay').innerHTML = 
-                    '<strong>💨 SESSION VANISHED</strong><br>Request new challenge for next action';
-                logEphemeral('✅ Security: Session destroyed automatically');
+                    '<strong>💨 SESSION VANISHED</strong><br>Session destroyed after use';
+                logEphemeral('✅ Security: Session destroyed after viewing statement');
             }, 1500);
         }
 
         function stealEphemeral() {
             if (!currentSession) {
-                logEphemeral('👹 Hacker: No session to steal!');
+                logEphemeral('👹 Hacker: No banking session to steal!');
                 return;
             }
             
-            logEphemeral('👹 Hacker: Stole the ephemeral session!');
+            logEphemeral('👹 Hacker: Stole the ephemeral banking session!');
+            logEphemeral('👹 Hacker: Let me try to empty this account...');
             
             setTimeout(() => {
-                logEphemeral('👹 Hacker: Making ONE request with stolen session...');
+                const amount = Math.min(1000, ephemeralBalance * 0.5);
+                ephemeralBalance -= amount;
+                document.getElementById('ephemeralBalance').innerHTML = 
+                    `<strong>Bank Balance:</strong> $${ephemeralBalance.toFixed(2)}`;
+                
+                logEphemeral(`👹 Hacker: Made ONE transfer: $${amount.toFixed(2)} to my account!`);
+                logEphemeral(`👹 Hacker: Balance now: $${ephemeralBalance.toFixed(2)}`);
+                
                 setTimeout(() => {
-                    logEphemeral('💨 Hacker: Session VANISHED after my ONE action!');
-                    logEphemeral('😡 Hacker: I got ONE bank access then NOTHING!');
-                    logEphemeral('✅ SECURITY WIN: Maximum damage = ONE action');
+                    logEphemeral('👹 Hacker: Trying to make SECOND transfer...');
+                    logEphemeral('💨 Hacker: Session VANISHED after my ONE transfer!');
+                    logEphemeral('❌ Hacker: Second transfer DENIED - No session!');
+                    logEphemeral('😡 Hacker: I only got ONE transfer! Maximum damage: $' + amount.toFixed(2));
+                    logEphemeral('✅ SECURITY WIN: Hacker limited to SINGLE transaction');
+                    
                     currentSession = null;
                     document.getElementById('ephemeralDisplay').innerHTML = 
-                        '<strong>💨 SESSION STOLEN & USED</strong><br>Hacker limited to SINGLE action';
+                        '<strong>💨 SESSION STOLEN & USED</strong><br>Hacker limited to ONE banking action';
+                    document.getElementById('ephemeralUserStatus').innerHTML = 
+                        `<strong>🔒 SECURITY PROTECTED:</strong> ${ephemeralUser}<br>
+                         <em>Hacker stole session but got only ONE transfer</em>`;
                 }, 1000);
             }, 500);
         }
