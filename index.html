@@ -1,276 +1,1022 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Ephemeral Auth vs Token Auth - BANKING SECURITY DEMO</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ephemeral Auth | Quantum-Secure Authentication</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
-        .demo-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .demo-box { border: 3px solid; padding: 20px; border-radius: 10px; background: white; min-height: 650px; }
-        .token-demo { border-color: #ff4444; }
-        .ephemeral-demo { border-color: #44ff44; }
-        
-        .login-form { background: #f9f9f9; padding: 15px; border-radius: 5px; margin: 10px 0; }
-        input { padding: 8px; margin: 5px; width: 200px; }
-        button { margin: 5px; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .login-btn { background: #007bff; color: white; }
-        .action-btn { background: #28a745; color: white; }
-        .hacker-btn { background: #ffc107; color: black; }
-        
-        .session-display { background: #e9ecef; padding: 15px; margin: 10px 0; border-radius: 5px; min-height: 80px; }
-        .user-status { background: #d4edda; padding: 10px; border-radius: 5px; margin: 10px 0; }
-        .log { background: #000; color: #0f0; padding: 10px; margin: 10px 0; border-radius: 5px; max-height: 250px; overflow-y: auto; font-family: monospace; font-size: 12px; }
-        
-        .explanation { background: #e3f2fd; padding: 15px; border-radius: 5px; margin: 10px 0; }
-        .bank-balance { background: #fff3cd; padding: 10px; border-radius: 5px; margin: 10px 0; font-weight: bold; }
-        
-        .danger-zone { background: #ffeaa7; padding: 10px; border-radius: 5px; margin: 10px 0; border: 2px dashed #e17055; }
-        .security-win { background: #a3e4d7; padding: 10px; border-radius: 5px; margin: 10px 0; border: 2px solid #16a085; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1f2937;
+            --light: #f8fafc;
+            --gray: #6b7280;
+            --border: #e5e7eb;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            grid-column: 1 / -1;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .tagline {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.25rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Main Demo Grid */
+        .demo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        /* Demo Cards */
+        .demo-card {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .demo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.3);
+        }
+
+        .demo-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .demo-icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .token-icon {
+            background: linear-gradient(135deg, var(--danger), #f97316);
+            color: white;
+        }
+
+        .ephemeral-icon {
+            background: linear-gradient(135deg, var(--secondary), #059669);
+            color: white;
+        }
+
+        .demo-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .demo-subtitle {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Session Bubbles */
+        .session-bubble {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: white;
+            z-index: 10;
+            transition: all 0.5s ease;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+        }
+
+        .token-bubble {
+            background: linear-gradient(135deg, var(--danger), #f97316);
+            top: 20px;
+            right: 20px;
+        }
+
+        .ephemeral-bubble {
+            background: linear-gradient(135deg, var(--secondary), #059669);
+            top: 20px;
+            right: 20px;
+        }
+
+        .bubble-destroy {
+            animation: bubbleDestroy 0.6s ease-out forwards;
+        }
+
+        @keyframes bubbleDestroy {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(0);
+                opacity: 0;
+            }
+        }
+
+        /* Glass Panel */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: var(--glass-shadow);
+            color: white;
+            position: relative;
+            height: fit-content;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .glass-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .glass-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .security-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .feed-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border-left: 4px solid;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .feed-item.security { border-left-color: var(--secondary); }
+        .feed-item.warning { border-left-color: var(--warning); }
+        .feed-item.danger { border-left-color: var(--danger); }
+
+        .feed-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .feed-time {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-top: 0.25rem;
+        }
+
+        /* Popup Modal */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .popup-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .popup-modal {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            color: white;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            transform: scale(0.9);
+            transition: all 0.3s ease;
+            box-shadow: var(--glass-shadow);
+        }
+
+        .popup-overlay.active .popup-modal {
+            transform: scale(1);
+        }
+
+        .popup-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .popup-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .popup-details {
+            opacity: 0.9;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .crypto-animation {
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 2px;
+            margin: 1rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .crypto-animation::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        /* Mobile Glass Panel */
+        .mobile-glass-toggle {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--primary);
+            color: white;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            border: none;
+            cursor: pointer;
+        }
+
+        .mobile-glass-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1.5rem 1.5rem 0 0;
+            padding: 2rem;
+            color: white;
+            z-index: 99;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .mobile-glass-panel.active {
+            transform: translateY(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .glass-panel {
+                display: none;
+            }
+            
+            .mobile-glass-toggle {
+                display: flex;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Rest of the existing styles for forms, buttons, etc. */
+        .auth-form {
+            background: var(--light);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .form-group {
+            display: grid;
+            grid-template-columns: 1fr ;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+      .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+label {
+    font-weight: bold;
+}
+
+input {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+
+
+        .input-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .input-field {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .security-section {
+            background: linear-gradient(135deg, #fef3c7, #fef7cd);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border: 1px solid #fbbf24;
+            margin-bottom: 1.5rem;
+        }
+
+        .security-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            color: #92400e;
+        }
+
+        .activity-log {
+            background: #111827;
+            color: #10b981;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.875rem;
+            border: 1px solid #374151;
+        }
+
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .log-time {
+            color: #6b7280;
+            margin-right: 0.5rem;
+        }
     </style>
 </head>
 <body>
-    <h1>🏦 BANKING SECURITY SHOWDOWN: Token vs Ephemeral Auth</h1>
-    <p><strong>Same user. Same bank. DRAMATICALLY different security outcomes!</strong></p>
-    
-    <div class="demo-container">
-        <!-- TOKEN AUTH SIDE -->
-        <div class="demo-box token-demo">
-            <h2>🔓 TRADITIONAL TOKEN AUTH</h2>
-            <p><em>Login once → Unlimited transfers for 2 HOURS</em></p>
-            
-            <div class="login-form">
-                <h3>Bank Login</h3>
-                <input type="text" id="tokenUsername" placeholder="Username" value="john@bank.com">
-                <input type="password" id="tokenPassword" placeholder="Password" value="••••••••"><br>
-                <button class="login-btn" onclick="tokenLogin()">🔑 Login & Get Token</button>
+    <!-- Mobile Glass Toggle -->
+    <button class="mobile-glass-toggle" onclick="toggleMobileGlass()">
+        📱
+    </button>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <span>🔐</span>
+                Ephemeral Auth
             </div>
-            
-            <div class="bank-balance" id="tokenBalance">
-                <strong>Bank Balance:</strong> $10,000.00
-            </div>
-            
-            <div class="user-status" id="tokenUserStatus">
-                <strong>Status:</strong> Not logged in
-            </div>
-            
-            <button class="action-btn" onclick="tokenBankTransfer()">💸 Make Bank Transfer</button>
-            <button class="action-btn" onclick="tokenViewStatement()">📊 View Account Statement</button>
-            
-            <div class="danger-zone">
-                <button class="hacker-btn" onclick="stealToken()">👹 SIMULATE TOKEN THEFT</button>
-                <p><small>See what happens when hacker gets your token</small></p>
-            </div>
-            
-            <div class="session-display" id="tokenDisplay">
-                <strong>TOKEN STATUS:</strong> No active session
-            </div>
-            
-            <div class="log" id="tokenLog"></div>
+            <p class="tagline">
+                Quantum-secure authentication with ephemeral cryptographic proofs. 
+                Same seamless experience, catastrophic breach prevention.
+            </p>
         </div>
 
-        <!-- EPHEMERAL AUTH SIDE -->
-        <div class="demo-box ephemeral-demo">
-            <h2>✅ EPHEMERAL AUTH</h2>
-            <p><em>Each transfer → Fresh authentication → Session VANISHES</em></p>
-            
-            <div class="login-form">
-                <h3>Bank Login</h3>
-                <input type="text" id="ephemeralUsername" placeholder="Username" value="john@bank.com">
-                <input type="password" id="ephemeralPassword" placeholder="Password" value="••••••••"><br>
-                <button class="login-btn" onclick="ephemeralLogin()">🎯 Login & Get Ephemeral</button>
+        <!-- Main Demo Grid -->
+        <div class="demo-grid">
+            <!-- Traditional Token Auth -->
+            <div class="demo-card">
+                <div class="session-bubble token-bubble" id="tokenBubble">
+                    TOK
+                </div>
+                
+                <div class="demo-header">
+                    <div class="demo-icon token-icon">🔓</div>
+                    <div>
+                        <div class="demo-title">Traditional Token Auth</div>
+                        <div class="demo-subtitle">Static credentials · Long-lived sessions · High risk</div>
+                    </div>
+                </div>
+
+                <!-- Auth Form -->
+                <div class="auth-form">
+                    <div class="form-group">
+                        <div class="input-group">
+                            <label class="input-label">Username</label>
+                            <input type="text" class="input-field" id="tokenUsername" value="john@enterprise.com">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label class="input-label">Password</label>
+                            <input type="password" class="input-field" id="tokenPassword" value="••••••••">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="tokenLogin()">
+                        <span>🔑</span> Generate Token
+                    </button>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-grid">
+                    <button class="btn btn-success" onclick="tokenBankTransfer()">
+                        <span>💸</span> Bank Transfer
+                    </button>
+                    <button class="btn btn-success" onclick="tokenViewStatement()">
+                        <span>📊</span> View Statement
+                    </button>
+                    <button class="btn btn-success" onclick="tokenPayBill()">
+                        <span>📋</span> Pay Bill
+                    </button>
+                </div>
+
+                <!-- Security Warning -->
+                <div class="security-section">
+                    <div class="security-header">
+                        <span>🚨</span>
+                        Security Risk Assessment
+                    </div>
+                    <button class="btn btn-danger" onclick="stealToken()">
+                        <span>👹</span> Simulate Token Compromise
+                    </button>
+                </div>
+
+                <!-- Activity Log -->
+                <div class="activity-log" id="tokenLog">
+                    <div class="log-entry">
+                        <span class="log-time">[System]</span> Ready for authentication demo
+                    </div>
+                </div>
             </div>
-            
-            <div class="explanation">
-                <strong>💡 How It Works:</strong><br>
-                • Each action requires fresh cryptographic proof<br>
-                • Re-authentication happens automatically<br>
-                • User experience feels seamless<br>
-                • Security is maximum
+
+            <!-- Ephemeral Auth -->
+            <div class="demo-card">
+                <div class="session-bubble ephemeral-bubble" id="ephemeralBubble" style="display: none;">
+                    EPH
+                </div>
+                
+                <div class="demo-header">
+                    <div class="demo-icon ephemeral-icon">⚡</div>
+                    <div>
+                        <div class="demo-title">Ephemeral Auth</div>
+                        <div class="demo-subtitle">Dynamic proofs · Auto-rotation · Quantum secure</div>
+                    </div>
+                </div>
+
+                <!-- Auth Form -->
+                <div class="auth-form">
+                    <div class="form-group">
+                        <div class="input-group">
+                            <label class="input-label">Username</label>
+                            <input type="text" class="input-field" id="ephemeralUsername" value="john@enterprise.com">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Password</label>
+                            <input type="password" class="input-field" id="ephemeralPassword" value="••••••••">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="ephemeralLogin()">
+                        <span>🎯</span> Generate Ephemeral Session
+                    </button>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-grid">
+                    <button class="btn btn-success" onclick="ephemeralBankTransfer()">
+                        <span>💸</span> Bank Transfer
+                    </button>
+                    <button class="btn btn-success" onclick="ephemeralViewStatement()">
+                        <span>📊</span> View Statement
+                    </button>
+                    <button class="btn btn-success" onclick="ephemeralPayBill()">
+                        <span>📋</span> Pay Bill
+                    </button>
+                </div>
+
+                <!-- Security Advantage -->
+                <div class="security-section" style="background: linear-gradient(135deg, #d1fae5, #dcfce7); border-color: #10b981;">
+                    <div class="security-header" style="color: #065f46;">
+                        <span>🛡️</span>
+                        Security Advantage
+                    </div>
+                    <button class="btn btn-warning" onclick="stealEphemeral()">
+                        <span>👹</span> Test Session Security
+                    </button>
+                </div>
+
+                <!-- Activity Log -->
+                <div class="activity-log" id="ephemeralLog">
+                    <div class="log-entry">
+                        <span class="log-time">[System]</span> Ready for ephemeral authentication demo
+                    </div>
+                </div>
             </div>
-            
-            <div class="bank-balance" id="ephemeralBalance">
-                <strong>Bank Balance:</strong> $10,000.00
+        </div>
+
+        <!-- Desktop Glass Panel -->
+        <div class="glass-panel">
+            <div class="glass-header">
+                <div class="glass-title">🛡️ Live Security Monitor</div>
+                <button class="close-btn" onclick="toggleGlassPanel()">❌</button>
             </div>
-            
-            <div class="user-status" id="ephemeralUserStatus">
-                <strong>Status:</strong> Not logged in
+            <div class="security-feed" id="securityFeed">
+                <div class="feed-item security">
+                    <div class="feed-header">
+                        <span>🔐</span>
+                        System Ready
+                    </div>
+                    <div>Ephemeral Auth security monitor activated</div>
+                    <div class="feed-time" id="currentTime"></div>
+                </div>
             </div>
-            
-            <button class="action-btn" onclick="ephemeralBankTransfer()">💸 Make Bank Transfer</button>
-            <button class="action-btn" onclick="ephemeralViewStatement()">📊 View Account Statement</button>
-            
-            <div class="security-win">
-                <button class="hacker-btn" onclick="stealEphemeral()">👹 TRY TO STEAL SESSION</button>
-                <p><small>See why hackers get almost nothing</small></p>
+        </div>
+    </div>
+
+    <!-- Mobile Glass Panel -->
+    <div class="mobile-glass-panel" id="mobileGlassPanel">
+        <div class="glass-header">
+            <div class="glass-title">🛡️ Live Security Monitor</div>
+            <button class="close-btn" onclick="toggleMobileGlass()">❌</button>
+        </div>
+        <div class="security-feed" id="mobileSecurityFeed">
+            <div class="feed-item security">
+                <div class="feed-header">
+                    <span>🔐</span>
+                    System Ready
+                </div>
+                <div>Ephemeral Auth security monitor activated</div>
+                <div class="feed-time" id="mobileCurrentTime"></div>
             </div>
-            
-            <div class="session-display" id="ephemeralDisplay">
-                <strong>SESSION STATUS:</strong> No active session
+        </div>
+    </div>
+
+    <!-- Popup Modal -->
+    <div class="popup-overlay" id="popupOverlay">
+        <div class="popup-modal">
+            <div class="popup-icon" id="popupIcon">🔐</div>
+            <div class="popup-title" id="popupTitle">Ephemeral Proof</div>
+            <div class="popup-details" id="popupDetails">
+                Generating cryptographic proof...
             </div>
-            
-            <div class="log" id="ephemeralLog"></div>
+            <div class="crypto-animation"></div>
+            <div style="font-family: monospace; font-size: 0.9rem; opacity: 0.8;" id="popupSession">
+                Session: Ready
+            </div>
         </div>
     </div>
 
     <script>
-        // TOKEN AUTH - DANGEROUS BANKING
+        // Security Feed Management
+        function addSecurityFeed(message, type = 'security', details = '') {
+            const time = new Date().toLocaleTimeString();
+            const feedItem = `
+                <div class="feed-item ${type}">
+                    <div class="feed-header">
+                        <span>${getFeedIcon(type)}</span>
+                        ${message}
+                    </div>
+                    <div>${details}</div>
+                    <div class="feed-time">${time}</div>
+                </div>
+            `;
+            
+            document.getElementById('securityFeed').insertAdjacentHTML('afterbegin', feedItem);
+            document.getElementById('mobileSecurityFeed').insertAdjacentHTML('afterbegin', feedItem);
+            
+            // Update current time
+            document.getElementById('currentTime').textContent = time;
+            document.getElementById('mobileCurrentTime').textContent = time;
+        }
+
+        function getFeedIcon(type) {
+            const icons = {
+                'security': '🔐',
+                'warning': '⚠️',
+                'danger': '🚨',
+                'success': '✅',
+                'transfer': '💸',
+                'session': '⚡'
+            };
+            return icons[type] || '🔍';
+        }
+
+        // Popup Management
+        function showPopup(icon, title, details, session = '') {
+            document.getElementById('popupIcon').textContent = icon;
+            document.getElementById('popupTitle').textContent = title;
+            document.getElementById('popupDetails').textContent = details;
+            document.getElementById('popupSession').textContent = session;
+            
+            const overlay = document.getElementById('popupOverlay');
+            overlay.classList.add('active');
+            
+            // Auto-close after 2 seconds
+            setTimeout(() => {
+                overlay.classList.remove('active');
+            }, 2000);
+        }
+
+        // Session Bubble Management
+        function updateSessionBubble(type, action) {
+            const bubble = document.getElementById(type + 'Bubble');
+            
+            if (action === 'create') {
+                bubble.style.display = 'flex';
+                bubble.style.transform = 'scale(0)';
+                setTimeout(() => {
+                    bubble.style.transform = 'scale(1)';
+                }, 10);
+            } else if (action === 'destroy') {
+                bubble.classList.add('bubble-destroy');
+                setTimeout(() => {
+                    bubble.style.display = 'none';
+                    bubble.classList.remove('bubble-destroy');
+                }, 600);
+            }
+        }
+
+        // Glass Panel Management
+        function toggleGlassPanel() {
+            const panel = document.querySelector('.glass-panel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function toggleMobileGlass() {
+            const panel = document.getElementById('mobileGlassPanel');
+            panel.classList.toggle('active');
+        }
+
+        // Demo Functions
         let userToken = null;
         let tokenUser = null;
         let tokenBalance = 10000;
-        let tokenTransfers = [];
+        let tokenActions = [];
+
+        let ephemeralUser = null;
+        let currentSession = null;
+        let ephemeralBalance = 10000;
+        let ephemeralActions = [];
+        let autoReauthInProgress = false;
 
         function tokenLogin() {
             const username = document.getElementById('tokenUsername').value;
-            userToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' + Math.random().toString(36).substr(2, 20);
+            userToken = 'tok_' + Math.random().toString(36).substr(2, 16);
             tokenUser = username;
             
-            document.getElementById('tokenUserStatus').innerHTML = 
-                `<strong>✅ BANK LOGGED IN:</strong> ${username}<br>
-                 <em>Token valid for 2 HOURS - Unlimited transfers</em>`;
-                 
-            document.getElementById('tokenDisplay').innerHTML = 
-                `<strong>🔑 ACTIVE BANKING TOKEN:</strong><br>
-                 ${userToken.substr(0, 30)}...<br>
-                 <span style="color: red;">⏰ Valid for 2 HOURS</span>`;
+            updateSessionBubble('token', 'create');
+            addSecurityFeed('Token Generated', 'warning', `Static token created for ${username}`);
+            showPopup('🔑', 'Token Generated', 'Static JWT token with 2-hour expiration', `Token: ${userToken}`);
             
-            logToken(`🔑 ${username} logged into bank → Got JWT token`);
-            logToken('⚠️  This token allows UNLIMITED transfers for 2 HOURS');
+            logToken(`🔑 ${username} authenticated → Token active for 2 hours`);
         }
 
         function tokenBankTransfer() {
             if (!userToken) {
-                logToken('❌ Please login to bank first');
+                logToken('❌ Please authenticate first');
                 return;
             }
             
             const amount = (Math.random()*500 + 100).toFixed(2);
             tokenBalance -= parseFloat(amount);
-            tokenTransfers.push(amount);
+            tokenActions.push(`Transfer: $${amount}`);
             
-            document.getElementById('tokenBalance').innerHTML = 
-                `<strong>Bank Balance:</strong> $${tokenBalance.toFixed(2)}`;
+            addSecurityFeed('Bank Transfer', 'transfer', `$${amount} transferred using static token`);
+            showPopup('💸', 'Bank Transfer', `Transfer completed: $${amount}`, 'Using static token');
             
-            logToken(`💸 BANK TRANSFER #${tokenTransfers.length}: $${amount} sent`);
-            logToken(`📊 Remaining balance: $${tokenBalance.toFixed(2)}`);
-            logToken('✅ Token STILL ACTIVE - Can make unlimited more transfers!');
-            
-            if (tokenTransfers.length === 3) {
-                logToken('🚨 DANGER: Hacker could make 100+ transfers with same token!');
-            }
+            logToken(`💸 Transfer #${tokenActions.length}: $${amount} sent`);
         }
 
         function tokenViewStatement() {
             if (!userToken) {
-                logToken('❌ Please login first');
+                logToken('❌ Please authenticate first');
                 return;
             }
-            logToken(`📊 ACCOUNT STATEMENT: ${tokenTransfers.length} transfers today`);
-            logToken('✅ Token STILL VALID for banking operations');
+            addSecurityFeed('Statement Viewed', 'security', 'Account statement accessed');
+            showPopup('📊', 'Statement Viewed', 'Account statement loaded', 'Token-based access');
+            logToken(`📊 Statement: ${tokenActions.length} transactions`);
+        }
+
+        function tokenPayBill() {
+            if (!userToken) {
+                logToken('❌ Please authenticate first');
+                return;
+            }
+            
+            const amount = (Math.random()*200 + 50).toFixed(2);
+            tokenBalance -= parseFloat(amount);
+            tokenActions.push(`Bill: $${amount}`);
+            
+            addSecurityFeed('Bill Paid', 'transfer', `Bill payment: $${amount}`);
+            showPopup('📋', 'Bill Paid', `Payment processed: $${amount}`, 'Static token auth');
+            
+            logToken(`📋 Bill paid: $${amount}`);
         }
 
         function stealToken() {
             if (!userToken) {
-                logToken('👹 Hacker: No banking token to steal!');
+                logToken('👹 Hacker: No token to steal!');
                 return;
             }
             
-            logToken('🚨 🚨 🚨 BANKING TOKEN STOLEN BY HACKER!');
-            logToken(`👹 Hacker: I have ${tokenUser}\'s banking token!`);
-            logToken('👹 Hacker: Time to empty this account!');
+            addSecurityFeed('TOKEN COMPROMISED!', 'danger', 'Static token stolen by attacker');
+            showPopup('🚨', 'SECURITY BREACH', 'Token compromised! Unlimited access granted', 'CRITICAL');
             
-            let hackerBalance = tokenBalance;
-            let hackerTransfers = 0;
+            logToken('🚨 🚨 🚨 TOKEN STOLEN BY HACKER!');
             
+            let hackerActions = 0;
             const hackerInterval = setInterval(() => {
-                hackerTransfers++;
-                const amount = Math.min(1000, hackerBalance * 0.3); // Take 30% each time
-                hackerBalance -= amount;
+                hackerActions++;
+                const amount = Math.min(800, tokenBalance * 0.4);
+                tokenBalance -= amount;
                 
-                logToken(`👹 Hacker: Transfer #${hackerTransfers}: $${amount.toFixed(2)} to my account!`);
-                logToken(`👹 Hacker: Remaining: $${hackerBalance.toFixed(2)}`);
+                addSecurityFeed('Unauthorized Transfer', 'danger', `Hacker transfer #${hackerActions}: $${amount.toFixed(2)}`);
+                logToken(`👹 Hacker: Action #${hackerActions}: $${amount.toFixed(2)} stolen`);
                 
-                if (hackerTransfers >= 5 || hackerBalance < 100) {
+                if (hackerActions >= 3) {
                     clearInterval(hackerInterval);
-                    const totalStolen = (tokenBalance - hackerBalance).toFixed(2);
-                    logToken(`💀 Hacker: Stole $${totalStolen} total!`);
-                    logToken(`😈 Hacker: Could keep transferring for 2 HOURS!`);
-                    
-                    // Update actual balance
-                    tokenBalance = hackerBalance;
-                    document.getElementById('tokenBalance').innerHTML = 
-                        `<strong>Bank Balance:</strong> $${tokenBalance.toFixed(2)}`;
+                    logToken(`💀 Hacker: Stole $${(tokenBalance * 0.7).toFixed(2)} total!`);
                 }
             }, 1000);
         }
 
-        function logToken(message) {
-            const log = document.getElementById('tokenLog');
-            log.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${message}</div>`;
-            log.scrollTop = log.scrollHeight;
-        }
-
-        // EPHEMERAL AUTH - SECURE BANKING
-        let ephemeralUser = null;
-        let currentSession = null;
-        let ephemeralBalance = 10000;
-        let ephemeralTransfers = [];
-        let autoReauth = false;
-
         function ephemeralLogin() {
             const username = document.getElementById('ephemeralUsername').value;
-            document.getElementById('ephemeralUserStatus').innerHTML = 
-                `<strong>🔐 SOLVING BANK CHALLENGE:</strong> ${username}`;
-            document.getElementById('ephemeralDisplay').innerHTML = 
-                '<strong>🎯 BANK SECURITY CHALLENGE:</strong> Verifying cryptographic proof...';
             
-            logEphemeral(`🎯 ${username} requested bank authentication`);
+            addSecurityFeed('Ephemeral Session', 'session', 'Generating cryptographic proof...');
+            showPopup('🎯', 'Ephemeral Proof', 'Generating SHA3-256 hash...', 'Creating session');
             
-            // Simulate solving cryptographic proof
             setTimeout(() => {
                 ephemeralUser = username;
-                currentSession = 'eph_bank_' + Math.random().toString(36).substr(2, 12);
+                currentSession = 'eph_' + Math.random().toString(36).substr(2, 12);
                 
-                document.getElementById('ephemeralUserStatus').innerHTML = 
-                    `<strong>✅ BANK AUTHENTICATED:</strong> ${username}<br>
-                     <em>Secure session ready for ONE action</em>`;
-                     
-                document.getElementById('ephemeralDisplay').innerHTML = 
-                    `<strong>⚡ EPHEMERAL BANK SESSION:</strong><br>
-                     ${currentSession}<br>
-                     <span style="color: green;">💨 Vanishes after ONE banking action</span>`;
+                updateSessionBubble('ephemeral', 'create');
+                addSecurityFeed('Session Created', 'success', `Ephemeral session: ${currentSession}`);
+                showPopup('✅', 'Session Ready', 'Cryptographic proof validated', `Session: ${currentSession}`);
                 
-                logEphemeral('✅ Cryptographic proof solved → Secure banking session created');
-                logEphemeral('⚠️  Session will SELF-DESTRUCT after single banking action');
-            }, 1000);
+                logEphemeral(`✅ ${username} authenticated with ephemeral session`);
+            }, 1500);
         }
 
         function ephemeralBankTransfer() {
-            if (!currentSession) {
-                logEphemeral('❌ Please authenticate with bank first');
+            if (!currentSession && !autoReauthInProgress) {
+                autoReauthInProgress = true;
+                
+                addSecurityFeed('Auto-Reauth', 'session', 'Generating fresh proof for transfer');
+                showPopup('🔄', 'Auto-Reauthentication', 'Creating new ephemeral proof...', 'Securing action');
+                
+                setTimeout(() => {
+                    currentSession = 'eph_' + Math.random().toString(36).substr(2, 12);
+                    autoReauthInProgress = false;
+                    
+                    executeEphemeralTransfer();
+                }, 1200);
                 return;
             }
             
+            executeEphemeralTransfer();
+        }
+
+        function executeEphemeralTransfer() {
             const amount = (Math.random()*500 + 100).toFixed(2);
             ephemeralBalance -= parseFloat(amount);
-            ephemeralTransfers.push(amount);
+            ephemeralActions.push(`Transfer: $${amount}`);
             
-            document.getElementById('ephemeralBalance').innerHTML = 
-                `<strong>Bank Balance:</strong> $${ephemeralBalance.toFixed(2)}`;
+            addSecurityFeed('Secure Transfer', 'success', `$${amount} with ephemeral proof`);
+            showPopup('💸', 'Secure Transfer', `Transfer completed: $${amount}`, `Session: ${currentSession}`);
             
-            logEphemeral(`💸 BANK TRANSFER: $${amount} sent`);
-            logEphemeral(`📊 Remaining balance: $${ephemeralBalance.toFixed(2)}`);
-            logEphemeral('💨 Banking session USED for this transfer → VANISHING...');
+            logEphemeral(`💸 Transfer: $${amount} sent with fresh auth`);
             
-            // Session vanishes after ONE transaction
+            // Destroy session after use
             setTimeout(() => {
+                updateSessionBubble('ephemeral', 'destroy');
                 currentSession = null;
-                document.getElementById('ephemeralDisplay').innerHTML = 
-                    '<strong>💨 BANKING SESSION VANISHED</strong><br>Next transfer requires fresh authentication';
-                document.getElementById('ephemeralUserStatus').innerHTML = 
-                    `<strong>🔒 RE-AUTHENTICATION NEEDED:</strong> ${ephemeralUser}<br>
-                     <em>Session destroyed after transfer - Standard security</em>`;
-                logEphemeral('✅ Security: Session destroyed after ONE banking action');
-                logEphemeral('🔒 Next transfer requires fresh cryptographic proof');
-            }, 1500);
+                addSecurityFeed('Session Rotated', 'security', 'Previous session destroyed');
+            }, 800);
         }
 
         function ephemeralViewStatement() {
@@ -279,57 +1025,84 @@
                 return;
             }
             
-            logEphemeral(`📊 ACCOUNT STATEMENT: ${ephemeralTransfers.length} transfers today`);
-            logEphemeral('💨 Session USED for statement view → VANISHING...');
+            addSecurityFeed('Secure Access', 'security', 'Statement viewed with ephemeral proof');
+            showPopup('📊', 'Secure Access', 'Statement loaded securely', `Session: ${currentSession}`);
+            
+            logEphemeral(`📊 Statement: ${ephemeralActions.length} transactions`);
             
             setTimeout(() => {
+                updateSessionBubble('ephemeral', 'destroy');
                 currentSession = null;
-                document.getElementById('ephemeralDisplay').innerHTML = 
-                    '<strong>💨 SESSION VANISHED</strong><br>Session destroyed after use';
-                logEphemeral('✅ Security: Session destroyed after viewing statement');
-            }, 1500);
+            }, 800);
+        }
+
+        function ephemeralPayBill() {
+            if (!currentSession) {
+                logEphemeral('❌ Please authenticate first');
+                return;
+            }
+            
+            const amount = (Math.random()*200 + 50).toFixed(2);
+            ephemeralBalance -= parseFloat(amount);
+            ephemeralActions.push(`Bill: $${amount}`);
+            
+            addSecurityFeed('Secure Payment', 'success', `Bill paid: $${amount}`);
+            showPopup('📋', 'Secure Payment', `Payment processed: $${amount}`, 'Ephemeral proof used');
+            
+            logEphemeral(`📋 Bill paid: $${amount}`);
+            
+            setTimeout(() => {
+                updateSessionBubble('ephemeral', 'destroy');
+                currentSession = null;
+            }, 800);
         }
 
         function stealEphemeral() {
             if (!currentSession) {
-                logEphemeral('👹 Hacker: No banking session to steal!');
+                logEphemeral('👹 Hacker: No session to steal!');
                 return;
             }
             
-            logEphemeral('👹 Hacker: Stole the ephemeral banking session!');
-            logEphemeral('👹 Hacker: Let me try to empty this account...');
+            addSecurityFeed('Session Intercepted', 'warning', 'Ephemeral session captured by attacker');
+            showPopup('👹', 'Security Test', 'Testing ephemeral session security...', 'Attack simulation');
             
             setTimeout(() => {
-                const amount = Math.min(1000, ephemeralBalance * 0.5);
+                const amount = Math.min(1000, ephemeralBalance * 0.3);
                 ephemeralBalance -= amount;
-                document.getElementById('ephemeralBalance').innerHTML = 
-                    `<strong>Bank Balance:</strong> $${ephemeralBalance.toFixed(2)}`;
                 
-                logEphemeral(`👹 Hacker: Made ONE transfer: $${amount.toFixed(2)} to my account!`);
-                logEphemeral(`👹 Hacker: Balance now: $${ephemeralBalance.toFixed(2)}`);
+                addSecurityFeed('Contained Breach', 'success', `Single action: $${amount} - Session destroyed`);
+                showPopup('🛡️', 'Breach Contained', `Limited to one action: $${amount}`, 'Session auto-destroyed');
+                
+                logEphemeral(`👹 Hacker: Made ONE transfer: $${amount.toFixed(2)}`);
+                
+                updateSessionBubble('ephemeral', 'destroy');
+                currentSession = null;
                 
                 setTimeout(() => {
-                    logEphemeral('👹 Hacker: Trying to make SECOND transfer...');
-                    logEphemeral('💨 Hacker: Session VANISHED after my ONE transfer!');
-                    logEphemeral('❌ Hacker: Second transfer DENIED - No session!');
-                    logEphemeral('😡 Hacker: I only got ONE transfer! Maximum damage: $' + amount.toFixed(2));
-                    logEphemeral('✅ SECURITY WIN: Hacker limited to SINGLE transaction');
-                    
-                    currentSession = null;
-                    document.getElementById('ephemeralDisplay').innerHTML = 
-                        '<strong>💨 SESSION STOLEN & USED</strong><br>Hacker limited to ONE banking action';
-                    document.getElementById('ephemeralUserStatus').innerHTML = 
-                        `<strong>🔒 SECURITY PROTECTED:</strong> ${ephemeralUser}<br>
-                         <em>Hacker stole session but got only ONE transfer</em>`;
+                    logEphemeral('✅ SECURITY: Breach contained to single action');
                 }, 1000);
-            }, 500);
+            }, 1500);
+        }
+
+        // Logging functions
+        function logToken(message) {
+            const log = document.getElementById('tokenLog');
+            log.innerHTML += `<div class="log-entry"><span class="log-time">[${new Date().toLocaleTimeString()}]</span> ${message}</div>`;
+            log.scrollTop = log.scrollHeight;
         }
 
         function logEphemeral(message) {
             const log = document.getElementById('ephemeralLog');
-            log.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${message}</div>`;
+            log.innerHTML += `<div class="log-entry"><span class="log-time">[${new Date().toLocaleTimeString()}]</span> ${message}</div>`;
             log.scrollTop = log.scrollHeight;
         }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            addSecurityFeed('System Initialized', 'security', 'Ephemeral Auth demo ready');
+            document.getElementById('currentTime').textContent = new Date().toLocaleTimeString();
+            document.getElementById('mobileCurrentTime').textContent = new Date().toLocaleTimeString();
+        });
     </script>
 </body>
-</html>
+</html>   
